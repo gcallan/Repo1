@@ -1,0 +1,76 @@
+
+DevNet gets Membership changes from CDG
+========================================
+CDG Details page, replace Event log with:
+	o ajax call to DevNet to get member details
+	o display results
+
+
+
+o Event endpoint:  .../events?names=<urn>,<urn>...&subject=<urn>
+	o Each event has membership changes:  add=..., remove=...
+	o Get 10 most recent
+
+
+
+Object To URN
+==============
+  o Get  URI based on object type
+  o Get OID
+  o Generate URN
+
+ URN to Object
+ ==============
+  o DevNet only URNs
+  o Regex:  urn:devnet:<module>.<object_type>.oid
+  	o parse, error if not match
+  	o if oid not int, error
+  	o if not "accounts", error
+  	o validate object_type (user, org, company, territory)
+  	o call URN converter($object_type, $oid)
+
+  o Passed URN, return object
+
+ o Find where we get Membership changes today in SecurityLog
+ o Refactor to use service
+
+ Flow:
+ -----
+ o Get events
+ o ForEach event
+ 	o get add urns
+ 	o get remove urns
+ 	o foreach URN
+ 		o convert urn to DevNet account object
+ 		o generate member details (eg. user, org, company, territory name & details)
+
+
+CLASSES:
+	1. Call CDG to get events($event_types, subject)
+	2. Process results: 
+		o URN to Account object (user/org/company...)
+		o Extract details from object
+
+
+
+EventTypeMembershipChanged:  (interface)
+	function translateEventData($event) {
+		o replace Account URNs with Object refs
+		o returns updated object
+	}
+	
+EventLog class:
+	o It knows where the EventLog service is and how to build a query
+
+	getEvents:
+		Passed query parms:
+			o list of event types
+			o subject
+			o pagination
+			o ... any other attribute filters that make sense
+
+			o Response data:
+				o replaces all DevNet URNs with object refs
+
+
+
